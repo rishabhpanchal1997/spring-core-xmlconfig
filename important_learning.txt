@@ -1,0 +1,86 @@
+Spring Bean Injection & Autowiring (XML Configuration)
+------------------------------------------------------
+
+1. How Spring Finds Beans
+    - Spring looks for the XML configuration file in the resources/ directory if a full path is not
+      provided explicitly.
+    - Bean definitions are typically provided :
+        - XML-Based Bean Definition
+        - Java-Based Configuration (@Configuration)
+        - Annotation-Based Configuration
+
+2. Bean Injection Strategies (XML)
+
+    --> Explicit Bean Reference (Recommended)
+        - Use ref to inject a specific bean by its id.
+        - Best practice to avoid ambiguity.
+        - No autowiring. Manually controlled.
+
+        <bean id="dieselEngine" class="com.example.DieselEngine"/>
+        <bean id="car" class="com.example.Car">
+            <property name="engine" ref="dieselEngine"/>
+        </bean>
+
+
+    --> Autowiring by Type
+        - Spring matches the type of the property (e.g., Engine) with available beans.
+        - If multiple beans of the same type exist:
+        - One should be marked primary="true" to resolve conflict. Otherwise, Spring will throw an error.
+        - Only one bean of a type should be marked as primary.
+        - Without a primary or explicit reference, Spring throws a NoUniqueBeanDefinitionException.
+
+        <bean id="dieselEngine" class="com.example.DieselEngine" primary="true"/>
+        <bean id="petrolEngine" class="com.example.PetrolEngine"/>
+        <bean id="car" class="com.example.Car" autowire="byType"/>
+
+
+    -->Autowiring by Name
+        - Works well when bean IDs match the setter method names.
+        - Fragile if naming mismatches occur.
+        - Spring injects a bean whose id matches exactly the property name
+          (e.g., setDieselEngine(...) → dieselEngine).
+
+        <bean id="dieselEngine" class="com.example.DieselEngine"/>
+        <bean id="car" class="com.example.Car" autowire="byName"/>
+
+
+
+3. Common Error Scenarios
+    Case1: Multiple Beans, Autowire by Type, No primary
+        - Both DieselEngine and PetrolEngine implement Engine.
+        - Spring doesn't know which one to inject → Error unless one is marked as primary="true".
+
+        <bean id="dieselEngine" class="com.engine.DieselEngine"/>
+        <bean id="petrolEngine" class="com.engine.PetrolEngine"/>
+        <bean id="car" class="com.vehicle.Car" autowire="byType"/>
+
+4. Bean Injection Modes
+Mode         --> 	Description	Notes
+byType       -->	Injects bean by type	Needs primary if multiple exist
+byName       -->	Injects bean by matching property name with bean id	Bean ID and setter method name must match
+constructor  -->	Uses constructor args to inject dependencies	Useful when dependency must be set early
+Explicit ref -->	Recommended for clarity and control	Avoids ambiguity
+
+
+5. Examples: Constructor vs Setter Injection
+
+    --> Constructor Injection
+
+        <bean id="dieselEngine" class="com.engine.DieselEngine">
+            <constructor-arg value="Diesel"/>
+            <constructor-arg value="200"/>
+        </bean>
+
+    --> Setter Injection
+
+        <bean id="petrolEngine" class="com.engine.PetrolEngine">
+            <property name="fuel" value="Petrol"/>
+            <property name="weight" value="150"/>
+        </bean>
+
+
+6. Best Practices
+- Prefer explicit references for clarity.
+- Use autowire="byType" cautiously and mark one bean primary="true" if needed.
+- Avoid autowire="byName" unless you're certain naming conventions are consistent.
+- Use constructor injection for required dependencies; setter injection for optional ones.

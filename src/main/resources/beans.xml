@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- DieselEngine: Constructor Injection -->
+    <bean id="dieselEngine" class="com.engine.DieselEngine">
+        <constructor-arg value="Diesel"/>
+        <constructor-arg value="200"/>
+    </bean>
+
+    <!-- PetrolEngine: Setter Injection -->
+    <bean id="petrolEngine" class="com.engine.PetrolEngine">
+        <property name="fuel" value="Petrol"/>
+        <property name="weight" value="150"/>
+    </bean>
+
+    <!--
+    - Car: Inject engine (you can switch between dieselEngine or petrolEngine)
+    - Since there is no conflict in bean names thanks to declaration by unique id, we can put
+      id of bean in ref of property tag.
+    - If you aks spring to find beans by autowire (autowire="byType"/autowire="byName"),
+      then you either have to provide
+        - primary bean if byType
+        - Unique names if byName
+      - If both not possible then remove autowire and provide explicit ref
+    -->
+    <bean id="car" class="com.vehicle.Car">
+        <property name="company" value="Toyota"/>
+        <property name="model" value="Fortuner"/>
+        <property name="engine" ref="petrolEngine"/> <!-- or dieselEngine -->
+    </bean>
+
+</beans>
